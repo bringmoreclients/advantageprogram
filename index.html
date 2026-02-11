@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LocalRestaurantOwner – Cash Discount Confidence Calculator</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --line:rgba(255,255,255,.08);
+      --text:#e6edf6;
+      --muted:rgba(230,237,246,.72);
+      --muted2:rgba(230,237,246,.55);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:12px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --good: rgba(34,197,94,.25);
+      --warn: rgba(250,204,21,.18);
+      --blue: rgba(96,165,250,.16);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background: radial-gradient(1200px 800px at 15% 10%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(1000px 700px at 85% 25%, rgba(167,139,250,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:22px auto 70px;padding:0 16px}
+    .topbar{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+    .brand{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px 18px;
+      box-shadow:var(--shadow);
+      min-width:320px;
+    }
+    .brand h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .brand p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    button{
+      border:0;cursor:pointer;
+      padding:11px 14px;border-radius:12px;
+      color:#fff;font-weight:900;
+      background:linear-gradient(180deg, rgba(29,78,216,1), rgba(29,78,216,.82));
+      box-shadow:0 10px 18px rgba(29,78,216,.18);
+    }
+    button.secondary{
+      background:linear-gradient(180deg, rgba(51,65,85,1), rgba(51,65,85,.78));
+      box-shadow:0 10px 18px rgba(51,65,85,.18);
+    }
+    button:active{transform:translateY(1px)}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .card h2{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:1000;letter-spacing:.25px;text-transform:uppercase}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .field{
+      flex:1;min-width:180px;
+      background:rgba(15,23,42,.75);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .field label{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:900}
+    .field input{
+      width:100%;
+      background:transparent;border:0;outline:none;
+      color:var(--text);
+      font-size:16px;font-weight:950;
+    }
+    .field small{display:block;margin-top:6px;color:var(--muted2);font-size:11px;line-height:1.25}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+    @media (max-width: 980px){.kpis{grid-template-columns:1fr}}
+    .kpi{
+      border:1px solid var(--line);
+      background:rgba(17,27,46,.75);
+      border-radius:14px;
+      padding:12px;
+    }
+    .kpi .label{font-size:12px;color:var(--muted);font-weight:950}
+    .kpi .value{font-size:22px;font-weight:1000;margin-top:6px}
+    .kpi .sub{font-size:11px;color:var(--muted2);margin-top:4px;line-height:1.2}
+
+    .twoCol{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 980px){.twoCol{grid-template-columns:1fr}}
+    .panel{
+      border:1px solid var(--line);
+      background:rgba(15,23,42,.55);
+      border-radius:14px;
+      padding:12px;
+    }
+    .panel h3{margin:0 0 6px;font-size:13px;font-weight:1000}
+    .panel p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      background:rgba(15,23,42,.7);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;font-weight:950;
+      white-space:nowrap;
+    }
+    .tag b{color:#fff}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{font-size:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+    th{color:#cfe6ff;text-align:left;font-weight:1000;background:rgba(96,165,250,.10);border-top:1px solid rgba(96,165,250,.20)}
+    td .miniInput{
+      width:100%; background:rgba(15,23,42,.75); border:1px solid var(--line);
+      border-radius:12px; padding:8px 10px; color:var(--text); outline:none; font-weight:900;
+    }
+    .right{text-align:right}
+    .muted{color:var(--muted2)}
+    .bigCallout{
+      border:1px solid rgba(96,165,250,.22);
+      background:rgba(96,165,250,.10);
+      border-radius:16px;padding:12px;
+      display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .bigCallout .headline{font-weight:1000}
+    .bigCallout .note{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}
+    .statusPill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      background:rgba(15,23,42,.7);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;font-weight:950;
+      white-space:nowrap;
+    }
+    .statusPill b{color:#fff}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>LocalRestaurantOwner • Cash Discount Confidence Calculator</h1>
+        <p>Quick visual to explain <b>discount vs fee</b> and what “4%” looks like on real menu items.</p>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="btnReset">Reset</button>
+        <button id="btnPrintTop">Print Summary</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Baseline Snapshot</h2>
+
+        <div class="row">
+          <div class="field">
+            <label><span>Restaurant Name</span><span>Optional</span></label>
+            <input id="restaurantName" type="text" placeholder="e.g., Ronin Teriyaki" />
+            <small>Used on printed report.</small>
+          </div>
+          <div class="field">
+            <label><span>Prepared Date</span><span>Auto</span></label>
+            <input id="preparedDate" type="text" />
+            <small>Auto-filled today (editable).</small>
+          </div>
+          <div class="field">
+            <label><span>Cash Discount %</span><span>%</span></label>
+            <input id="cdPct" type="text" inputmode="decimal" placeholder="4.0" />
+            <small>Typical: 4.0% (sometimes 3.5%).</small>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="field">
+            <label><span>Monthly Card Volume</span><span>$</span></label>
+            <input id="monthlySales" type="text" inputmode="decimal" placeholder="20000" />
+            <small>QSR often starts around $20k/mo.</small>
+          </div>
+          <div class="field">
+            <label><span>Monthly Processing Fees</span><span>$</span></label>
+            <input id="monthlyFees" type="text" inputmode="decimal" placeholder="600" />
+            <small>If known, we calculate Effective Rate.</small>
+          </div>
+          <div class="field">
+            <label><span>Average Ticket</span><span>$</span></label>
+            <input id="avgTicket" type="text" inputmode="decimal" placeholder="15" />
+            <small>Used to estimate monthly transactions.</small>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Effective Rate (EFR)</div>
+            <div class="value" id="efrOut">—</div>
+            <div class="sub">Fees ÷ Volume (if fees provided).</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Est. Monthly Transactions</div>
+            <div class="value" id="txOut">0</div>
+            <div class="sub">Volume ÷ Avg Ticket.</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Cost per Avg Ticket (at EFR)</div>
+            <div class="value" id="costPerTicket">—</div>
+            <div class="sub">This helps neutralize “sales drop” fear.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Customer Experience</h2>
+        <div class="twoCol">
+          <div class="panel">
+            <span class="tag">Scenario A: <b>Surcharge at Checkout</b></span>
+            <h3 style="margin-top:10px">Feels like a fee</h3>
+            <p>Menu shows one price, then the customer sees a higher price at payment time. This is where “junk fee” reactions happen.</p>
+            <div class="bigCallout" style="margin-top:10px;background:var(--warn)">
+              <div>
+                <div class="headline">Risk: perception, not pennies</div>
+                <div class="note">If sales drop, it’s usually because it felt like a surprise fee — not because of the cents.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <span class="tag">Scenario B: <b>Compliant Cash Discount</b></span>
+            <h3 style="margin-top:10px">Feels like a reward</h3>
+            <p>Menu price is transparent, and when the guest pays cash the POS shows a discount back to the cash price.</p>
+            <div class="bigCallout" style="margin-top:10px;background:var(--good)">
+              <div>
+                <div class="headline">Script you can use</div>
+                <div class="note"><b>“If sales drop, it won’t be because of 40 cents — it’ll be because it feels like a fee. That’s why we do it the compliant way: the menu price is transparent, and cash gets rewarded.”</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Top 3 Selling Items – Pricing Visual</h2>
+        <div class="row">
+          <div class="field">
+            <label><span>Compare Using EFR</span><span>Optional</span></label>
+            <input id="useEfr" type="text" readonly value="Auto" />
+            <small>We’ll show: “what you lose per item” using the current EFR (if fees provided).</small>
+          </div>
+          <div class="field">
+            <label><span>Run Numbers</span><span>Action</span></label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button id="btnCalc">Run Numbers</button>
+              <button class="secondary" id="btnPrint">Print Summary</button>
+            </div>
+            <small>Run → then Print Summary.</small>
+          </div>
+          <div class="field">
+            <label><span>Last Calculated</span><span>Auto</span></label>
+            <div class="statusPill">Time: <b id="lastCalc">—</b></div>
+            <small>Helps confirm the latest inputs.</small>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:180px">Item</th>
+                <th style="min-width:120px">Current Price ($)</th>
+                <th style="min-width:140px">New Menu Price (Card Built-In)</th>
+                <th style="min-width:110px" class="right">Cash Price</th>
+                <th style="min-width:120px" class="right">Difference</th>
+                <th style="min-width:150px" class="right">Cost @ EFR (Per Item)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="miniInput" id="i1_name" placeholder="e.g., Burrito" /></td>
+                <td><input class="miniInput" id="i1_price" inputmode="decimal" placeholder="10.00" /></td>
+                <td id="i1_new" class="muted">—</td>
+                <td id="i1_cash" class="right muted">—</td>
+                <td id="i1_diff" class="right muted">—</td>
+                <td id="i1_efr" class="right muted">—</td>
+              </tr>
+              <tr>
+                <td><input class="miniInput" id="i2_name" placeholder="e.g., Combo Plate" /></td>
+                <td><input class="miniInput" id="i2_price" inputmode="decimal" placeholder="15.00" /></td>
+                <td id="i2_new" class="muted">—</td>
+                <td id="i2_cash" class="right muted">—</td>
+                <td id="i2_diff" class="right muted">—</td>
+                <td id="i2_efr" class="right muted">—</td>
+              </tr>
+              <tr>
+                <td><input class="miniInput" id="i3_name" placeholder="e.g., Family Meal" /></td>
+                <td><input class="miniInput" id="i3_price" inputmode="decimal" placeholder="25.00" /></td>
+                <td id="i3_new" class="muted">—</td>
+                <td id="i3_cash" class="right muted">—</td>
+                <td id="i3_diff" class="right muted">—</td>
+                <td id="i3_efr" class="right muted">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bigCallout">
+          <div>
+            <div class="headline">Simple takeaway</div>
+            <div class="note">Most guests don’t change behavior over a few cents — they react to <b>surprise fees</b>. Compliant cash discount keeps pricing transparent.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+    function $(id){ return document.getElementById(id); }
+
+    function toNum(v){
+      var s = String(v==null ? '' : v).replace(/[$,%\s,]/g,'').trim();
+      if(!s) return 0;
+      var n = Number(s);
+      return isFinite(n) ? n : 0;
+    }
+
+    function money2(n){
+      var x = Number(n||0);
+      var sign = x < 0 ? '-' : '';
+      var abs = Math.abs(x);
+      return sign + abs.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2});
+    }
+    function pct2(n){ return (Number(n||0)).toFixed(2) + '%'; }
+
+    function escapeHtml(str){
+      return String(str||'')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function setToday(){
+      var d = new Date();
+      var mm = String(d.getMonth()+1).padStart(2,'0');
+      var dd = String(d.getDate()).padStart(2,'0');
+      var yyyy = d.getFullYear();
+      $('preparedDate').value = mm + '/' + dd + '/' + yyyy;
+    }
+
+    function stampCalculated(){
+      var d = new Date();
+      var hh = String(d.getHours()).padStart(2,'0');
+      var mm = String(d.getMinutes()).padStart(2,'0');
+      var ss = String(d.getSeconds()).padStart(2,'0');
+      $('lastCalc').textContent = hh + ':' + mm + ':' + ss;
+    }
+
+    function calcNewMenuPrice(basePrice, cdPct){
+      // If cash discount is 4%, the compliant menu price is typically base / (1 - 0.04)
+      // This keeps cash price at base, and card price reflects built-in.
+      var p = Number(basePrice||0);
+      var r = Number(cdPct||0)/100;
+      if(p<=0 || r<=0) return {menu:0, cash: p, diff:0};
+      var menu = p / (1 - r);
+      return {menu:menu, cash:p, diff:(menu - p)};
+    }
+
+    function recalc(){
+      var sales = toNum($('monthlySales').value);
+      var fees  = toNum($('monthlyFees').value);
+      var ticket= toNum($('avgTicket').value);
+      var cdPct = toNum($('cdPct').value);
+
+      var efr = (sales>0 && fees>0) ? (fees/sales)*100 : null;
+
+      $('efrOut').textContent = (efr===null ? '—' : pct2(efr));
+      var tx = (sales>0 && ticket>0) ? Math.round(sales/ticket) : 0;
+      $('txOut').textContent = tx.toLocaleString();
+
+      var costPer = (efr!==null && ticket>0) ? (ticket * (efr/100)) : null;
+      $('costPerTicket').textContent = (costPer===null ? '—' : money2(costPer));
+
+      // Top 3 items
+      function fillRow(n){
+        var price = toNum($(n+'_price').value);
+        var out = calcNewMenuPrice(price, cdPct);
+
+        $(n+'_new').textContent  = (out.menu>0 ? money2(out.menu) : '—');
+        $(n+'_cash').textContent = (price>0 ? money2(out.cash) : '—');
+        $(n+'_diff').textContent = (out.menu>0 ? money2(out.diff) : '—');
+
+        var perItemCost = (efr!==null && price>0) ? (price*(efr/100)) : null;
+        $(n+'_efr').textContent = (perItemCost===null ? '—' : money2(perItemCost));
+      }
+
+      fillRow('i1'); fillRow('i2'); fillRow('i3');
+    }
+
+    function buildPrintHTML(){
+      var name = ($('restaurantName').value || '____________________').trim();
+      var date = ($('preparedDate').value || '').trim();
+
+      var sales = toNum($('monthlySales').value);
+      var fees  = toNum($('monthlyFees').value);
+      var ticket= toNum($('avgTicket').value);
+      var cdPct = toNum($('cdPct').value);
+      var efr   = (sales>0 && fees>0) ? ((fees/sales)*100) : null;
+      var tx    = (sales>0 && ticket>0) ? Math.round(sales/ticket) : 0;
+
+      function itemRow(ix){
+        var nm = ($(ix+'_name').value || '').trim() || '—';
+        var pr = toNum($(ix+'_price').value);
+        var out = calcNewMenuPrice(pr, cdPct);
+        var perItemCost = (efr!==null && pr>0) ? (pr*(efr/100)) : null;
+
+        return '<tr>' +
+          '<td><b>' + escapeHtml(nm) + '</b></td>' +
+          '<td class="right">' + (pr>0 ? escapeHtml(money2(pr)) : '—') + '</td>' +
+          '<td class="right">' + (out.menu>0 ? escapeHtml(money2(out.menu)) : '—') + '</td>' +
+          '<td class="right">' + (pr>0 ? escapeHtml(money2(pr)) : '—') + '</td>' +
+          '<td class="right">' + (out.menu>0 ? escapeHtml(money2(out.diff)) : '—') + '</td>' +
+          '<td class="right">' + (perItemCost===null ? '—' : escapeHtml(money2(perItemCost))) + '</td>' +
+        '</tr>';
+      }
+
+      var costPer = (efr!==null && ticket>0) ? (ticket*(efr/100)) : null;
+
+      var html = '';
+      html += '<!doctype html><html><head><meta charset="utf-8" />';
+      html += '<title>Cash Discount Summary</title>';
+      html += '<style>';
+      html += '@page{margin:.6in}';
+      html += 'body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#0b1220}';
+      html += '.hdr{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #0b1220;padding-bottom:10px;margin-bottom:14px}';
+      html += '.brand{font-weight:900;font-size:16px}';
+      html += '.sub{font-size:12px;color:#334155;margin-top:4px;line-height:1.25}';
+      html += '.meta{text-align:right;font-size:12px}';
+      html += 'h2{font-size:13px;margin:14px 0 8px;text-transform:uppercase;letter-spacing:.18px}';
+      html += '.box{border:1px solid #cbd5e1;border-radius:12px;padding:12px;background:#f8fafc}';
+      html += '.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}';
+      html += '.krow{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px dashed #cbd5e1}';
+      html += '.krow:last-child{border-bottom:0}';
+      html += '.klabel{font-weight:800}';
+      html += '.kval{font-weight:900}';
+      html += 'table{width:100%;border-collapse:collapse}';
+      html += 'th,td{font-size:12px;padding:10px;border-bottom:1px solid #e2e8f0;vertical-align:top}';
+      html += 'th{background:#f1f5f9;font-weight:900;text-align:left}';
+      html += '.right{text-align:right;font-weight:900}';
+      html += '.muted{color:#64748b}';
+      html += '.callout{margin-top:12px;border:2px solid #0b1220;border-radius:14px;padding:12px}';
+      html += '.callout b{font-weight:1000}';
+      html += '.footer{margin-top:16px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px;color:#334155}';
+      html += '</style></head><body>';
+
+      html += '<div class="hdr">';
+      html +=   '<div><div class="brand">LocalRestaurantOwner</div><div class="sub"><b>Cash Discount Confidence Summary</b><br/>Simple visual: discount vs fee + top menu items.</div></div>';
+      html +=   '<div class="meta"><div><b>Prepared for:</b> ' + escapeHtml(name) + '</div><div><b>Date:</b> ' + escapeHtml(date) + '</div></div>';
+      html += '</div>';
+
+      html += '<h2>Baseline Snapshot</h2>';
+      html += '<div class="box"><div class="grid">';
+      html +=   '<div>';
+      html +=     '<div class="krow"><span class="klabel">Monthly Card Volume</span><span class="kval">' + escapeHtml(money2(sales)) + '</span></div>';
+      html +=     '<div class="krow"><span class="klabel">Monthly Fees</span><span class="kval">' + escapeHtml(money2(fees)) + '</span></div>';
+      html +=     '<div class="krow"><span class="klabel">Cash Discount %</span><span class="kval">' + escapeHtml(pct2(cdPct)) + '</span></div>';
+      html +=   '</div>';
+      html +=   '<div>';
+      html +=     '<div class="krow"><span class="klabel">Average Ticket</span><span class="kval">' + escapeHtml(money2(ticket)) + '</span></div>';
+      html +=     '<div class="krow"><span class="klabel">Est. Monthly Transactions</span><span class="kval">' + escapeHtml((tx||0).toLocaleString()) + '</span></div>';
+      html +=     '<div class="krow"><span class="klabel">Effective Rate (EFR)</span><span class="kval">' + (efr===null ? '—' : escapeHtml(pct2(efr))) + '</span></div>';
+      html +=   '</div>';
+      html += '</div></div>';
+
+      html += '<h2>Top 3 Items – Pricing Visual</h2>';
+      html += '<table><thead><tr>' +
+              '<th>Item</th><th class="right">Current</th><th class="right">New Menu Price</th><th class="right">Cash Price</th><th class="right">Difference</th><th class="right">Cost @ EFR</th>' +
+              '</tr></thead><tbody>';
+      html += itemRow('i1') + itemRow('i2') + itemRow('i3');
+      html += '</tbody></table>';
+
+      html += '<div class="callout">';
+      html += '<b>Simple explanation:</b> If sales drop, it won’t be because of a few cents — it’s usually because it feels like a fee. ';
+      html += 'Compliant cash discount keeps pricing transparent, and cash gets rewarded.';
+      html += '</div>';
+
+      html += '<div class="footer"><div><b>Prepared by:</b> LocalRestaurantOwner Consulting</div><div><b>Louis Ramirez</b> • 714-553-5819</div></div>';
+
+      html += '<script>window.onload=function(){window.print();};<\/script>';
+      html += '</body></html>';
+
+      return html;
+    }
+
+    function printSummary(){
+      recalc();
+      stampCalculated();
+      var w = window.open('', '_blank');
+      if(!w){
+        alert('Pop-up blocked. Allow pop-ups for this page to print the report.');
+        return;
+      }
+      w.document.open();
+      w.document.write(buildPrintHTML());
+      w.document.close();
+    }
+
+    function bind(){
+      setToday();
+
+      // sensible defaults for QSR
+      $('monthlySales').value = '20000';
+      $('monthlyFees').value  = '600';
+      $('avgTicket').value    = '15';
+      $('cdPct').value        = '4.0';
+
+      $('i1_name').value = 'Burrito';
+      $('i1_price').value = '10.00';
+      $('i2_name').value = 'Combo Plate';
+      $('i2_price').value = '15.00';
+      $('i3_name').value = 'Family Meal';
+      $('i3_price').value = '25.00';
+
+      Array.prototype.forEach.call(document.querySelectorAll('input'), function(inp){
+        inp.addEventListener('input', recalc);
+        inp.addEventListener('change', recalc);
+      });
+
+      $('btnCalc').addEventListener('click', function(){ recalc(); stampCalculated(); });
+      $('btnPrint').addEventListener('click', printSummary);
+      $('btnPrintTop').addEventListener('click', printSummary);
+      $('btnReset').addEventListener('click', function(){ window.location.reload(); });
+
+      recalc();
+      stampCalculated();
+    }
+
+    bind();
+  </script>
+</body>
+</html>
